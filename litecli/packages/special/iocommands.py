@@ -168,142 +168,37 @@ def open_external_editor(filename: str | None = None, sql: str | None = None) ->
 )
 def execute_favorite_query(cur: Any, arg: str, verbose: bool = False, **_: Any) -> Generator[tuple, None, None]:
     """Returns (title, rows, headers, status)"""
-    if arg == "":
-        for result in list_favorite_queries():
-            yield result
-
-    """Parse out favorite name and optional substitution parameters"""
-    name, _sep, arg_str = arg.partition(" ")
-    args = shlex.split(arg_str)
-
-    query = favoritequeries.get(name)
-    if query is None:
-        message = "No favorite query: %s" % (name)
-        yield (None, None, None, message)
-    elif "?" in query:
-        for sql in sqlparse.split(query):
-            sql = sql.rstrip(";")
-            title = "> %s" % (sql) if verbose else None
-            cur.execute(sql, args)
-            if cur.description:
-                headers = [x[0] for x in cur.description]
-                yield (title, cur, headers, None)
-            else:
-                yield (title, None, None, None)
-    else:
-        query, arg_error = subst_favorite_query_args(query, args)
-        if arg_error:
-            yield (None, None, None, arg_error)
-        else:
-            assert query, "query should be non-empty"
-            for sql in sqlparse.split(query):
-                sql = sql.rstrip(";")
-                title = "> %s" % (sql) if verbose else None
-                cur.execute(sql)
-                if cur.description:
-                    headers = [x[0] for x in cur.description]
-                    yield (title, cur, headers, None)
-                else:
-                    yield (title, None, None, None)
+    pass
 
 
 def list_favorite_queries() -> list[tuple]:
     """List of all favorite queries.
     Returns (title, rows, headers, status)"""
-
-    headers = ["Name", "Query"]
-    rows = [(r, favoritequeries.get(r)) for r in favoritequeries.list()]
-
-    if not rows:
-        status = "\nNo favorite queries found." + favoritequeries.usage
-    else:
-        status = ""
-    return [("", rows, headers, status)]
+    pass
 
 
 def subst_favorite_query_args(query: str, args: list[str]) -> list[str | None]:
     """Replace positional parameters ($1...$N or ?) in query."""
-    for idx, val in enumerate(args):
-        shell_subst_var = "$" + str(idx + 1)
-        question_subst_var = "?"
-        if shell_subst_var in query:
-            query = query.replace(shell_subst_var, val)
-        elif question_subst_var in query:
-            query = query.replace(question_subst_var, val, 1)
-        else:
-            return [
-                None,
-                "Too many arguments.\nQuery does not have enough place holders to substitute.\n" + query,
-            ]
-
-    match = re.search(r"\?|\$\d+", query)
-    if match:
-        return [
-            None,
-            "missing substitution for " + match.group(0) + " in query:\n  " + query,
-        ]
-
-    return [query, None]
+    pass
 
 
 @special_command("\\fs", "\\fs name query", "Save a favorite query.")
 def save_favorite_query(arg: str, **_: Any) -> list[tuple]:
     """Save a new favorite query.
     Returns (title, rows, headers, status)"""
-
-    usage = "Syntax: \\fs name query.\n\n" + favoritequeries.usage
-    if not arg:
-        return [(None, None, None, usage)]
-
-    name, _sep, query = arg.partition(" ")
-
-    # If either name or query is missing then print the usage and complain.
-    if (not name) or (not query):
-        return [(None, None, None, usage + "Err: Both name and query are required.")]
-
-    favoritequeries.save(name, query)
-    return [(None, None, None, "Saved.")]
+    pass
 
 
 @special_command("\\fd", "\\fd [name]", "Delete a favorite query.")
 def delete_favorite_query(arg: str, **_: Any) -> list[tuple]:
     """Delete an existing favorite query."""
-    usage = "Syntax: \\fd name.\n\n" + favoritequeries.usage
-    if not arg:
-        return [(None, None, None, usage)]
-
-    status = favoritequeries.delete(arg)
-
-    return [(None, None, None, status)]
+    pass
 
 
 @special_command("system", "system [command]", "Execute a system shell command.")
 def execute_system_command(arg: str, **_: Any) -> list[tuple]:
     """Execute a system shell command."""
-    usage = "Syntax: system [command].\n"
-
-    if not arg:
-        return [(None, None, None, usage)]
-
-    try:
-        command = arg.strip()
-        if command.startswith("cd"):
-            ok, error_message = handle_cd_command(arg)
-            if not ok:
-                return [(None, None, None, error_message)]
-            return [(None, None, None, "")]
-
-        args = arg.split(" ")
-        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate()
-        raw = output if not error else error
-        # Python 3 returns bytes. This needs to be decoded to a string.
-        encoding = locale.getpreferredencoding(False)
-        response: str = raw.decode(encoding) if isinstance(raw, bytes) else str(raw)
-
-        return [(None, None, None, response)]
-    except OSError as e:
-        return [(None, None, None, "OSError: %s" % e.strerror)]
+    pass
 
 
 def parseargfile(arg: str) -> tuple[str, str]:

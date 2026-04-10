@@ -238,12 +238,7 @@ class LiteCli(object):
         """
         Change the prompt format.
         """
-        if not arg:
-            message = "Missing required argument, format."
-            return [(None, None, None, message)]
-
-        self.prompt_format = self.get_prompt(arg)
-        return [(None, None, None, "Changed prompt format to %s" % arg)]
+        pass
 
     def initialize_logging(self) -> None:
         log_file = self.config["main"]["log_file"]
@@ -781,13 +776,7 @@ class LiteCli(object):
 
     def _on_completions_refreshed(self, new_completer: SQLCompleter) -> None:
         """Swap the completer object in cli with the newly created completer."""
-        with self._completer_lock:
-            self.completer = new_completer
-
-        if self.prompt_app:
-            # After refreshing, redraw the CLI to clear the statusbar
-            # "Refreshing completions..." indicator
-            self.prompt_app.app.invalidate()
+        pass
 
     def get_completions(self, text: str, cursor_positition: int) -> Iterable[Completion]:
         with self._completer_lock:

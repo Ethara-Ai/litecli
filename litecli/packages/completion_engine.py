@@ -15,76 +15,7 @@ def suggest_type(full_text: str, text_before_cursor: str) -> list[dict[str, Any]
     Returns a tuple with a type of entity ('table', 'column' etc) and a scope.
     A scope for a column category will be a list of tables.
     """
-
-    word_before_cursor = last_word(text_before_cursor, include="many_punctuations")
-
-    identifier: Identifier | None = None
-
-    # here should be removed once sqlparse has been fixed
-    try:
-        # If we've partially typed a word then word_before_cursor won't be an empty
-        # string. In that case we want to remove the partially typed string before
-        # sending it to the sqlparser. Otherwise the last token will always be the
-        # partially typed string which renders the smart completion useless because
-        # it will always return the list of keywords as completion.
-        if word_before_cursor:
-            if word_before_cursor.endswith("(") or word_before_cursor.startswith("\\"):
-                parsed = sqlparse.parse(text_before_cursor)
-            else:
-                parsed = sqlparse.parse(text_before_cursor[: -len(word_before_cursor)])
-
-                # word_before_cursor may include a schema qualification, like
-                # "schema_name.partial_name" or "schema_name.", so parse it
-                # separately
-                p = sqlparse.parse(word_before_cursor)[0]
-
-                if p.tokens and isinstance(p.tokens[0], Identifier):
-                    identifier = p.tokens[0]
-        else:
-            parsed = sqlparse.parse(text_before_cursor)
-    except (TypeError, AttributeError):
-        return [{"type": "keyword"}]
-
-    if len(parsed) > 1:
-        # Multiple statements being edited -- isolate the current one by
-        # cumulatively summing statement lengths to find the one that bounds the
-        # current position
-        current_pos = len(text_before_cursor)
-        stmt_start, stmt_end = 0, 0
-
-        for statement in parsed:
-            stmt_len = len(str(statement))
-            stmt_start, stmt_end = stmt_end, stmt_end + stmt_len
-
-            if stmt_end >= current_pos:
-                text_before_cursor = full_text[stmt_start:current_pos]
-                full_text = full_text[stmt_start:]
-                break
-
-    elif parsed:
-        # A single statement
-        statement = parsed[0]
-    else:
-        # The empty string
-        statement = None
-
-    # Check for special commands and handle those separately
-    if statement:
-        # Be careful here because trivial whitespace is parsed as a statement,
-        # but the statement won't have a first token
-        tok1 = statement.token_first()
-        if tok1 and tok1.value.startswith("."):
-            return suggest_special(text_before_cursor)
-        elif tok1 and tok1.value.startswith("\\"):
-            return suggest_special(text_before_cursor)
-        elif tok1 and tok1.value.startswith("source"):
-            return suggest_special(text_before_cursor)
-        elif text_before_cursor and text_before_cursor.startswith(".open "):
-            return suggest_special(text_before_cursor)
-
-    last_token = statement and statement.token_prev(len(statement.tokens))[1] or ""
-
-    return suggest_based_on_last_token(last_token, text_before_cursor, full_text, identifier)
+    pass
 
 
 def suggest_special(text: str) -> list[dict[str, Any]]:
@@ -139,8 +70,7 @@ def _expecting_arg_idx(arg: str, text: str) -> int:
     >>> _expecting_arg_idx("./data.csv t", ".import ./data.csv t")
     2
     """
-    args = arg.split()
-    return len(args) + int(text[-1].isspace())
+    pass
 
 
 def suggest_based_on_last_token(

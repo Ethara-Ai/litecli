@@ -277,10 +277,7 @@ class SQLCompleter(Completer):
 
     def unescape_name(self, name: str) -> str:
         """Unquote a string."""
-        if name and name[0] == '"' and name[-1] == '"':
-            name = name[1:-1]
-
-        return name
+        pass
 
     def escaped_names(self, names: Iterable[str]) -> list[str]:
         return [self.escape_name(name) for name in names]
@@ -315,30 +312,7 @@ class SQLCompleter(Completer):
         :param kind: either 'tables' or 'views'
         :return:
         """
-        # 'data' is a generator object. It can throw an exception while being
-        # consumed. This could happen if the user has launched the app without
-        # specifying a database name. This exception must be handled to prevent
-        # crashing.
-        try:
-            data = [self.escaped_names(d) for d in data]
-        except Exception:
-            _logger.exception("Failed to get relation names.")
-            data = []
-
-        # dbmetadata['tables'][$schema_name][$table_name] should be a list of
-        # column names. Default to an asterisk
-        metadata = self.dbmetadata[kind]
-        for relname in data:
-            try:
-                metadata[self.dbname][relname[0]] = ["*"]
-            except KeyError:
-                _logger.error(
-                    "%r %r listed in unrecognized schema %r",
-                    kind,
-                    relname[0],
-                    self.dbname,
-                )
-            self.all_completions.add(relname[0])
+        pass
 
     def extend_columns(self, column_data: Iterable[Sequence[str]], kind: str) -> None:
         """Extend column metadata
@@ -347,20 +321,7 @@ class SQLCompleter(Completer):
         :param kind: either 'tables' or 'views'
         :return:
         """
-        # 'column_data' is a generator object. It can throw an exception while
-        # being consumed. This could happen if the user has launched the app
-        # without specifying a database name. This exception must be handled to
-        # prevent crashing.
-        try:
-            column_data = [self.escaped_names(d) for d in column_data]
-        except Exception:
-            _logger.exception("Failed to get column names.")
-            column_data = []
-
-        metadata = self.dbmetadata[kind]
-        for relname, column in column_data:
-            metadata[self.dbname][relname].append(column)
-            self.all_completions.add(column)
+        pass
 
     def extend_functions(self, func_data: Iterable[Sequence[str]]) -> None:
         # 'func_data' is a generator object. It can throw an exception while
@@ -412,34 +373,7 @@ class SQLCompleter(Completer):
         yields prompt_toolkit Completion instances for any matches found
         in the collection of available completions.
         """
-        last = last_word(text, include=punctuations)
-        text = last.lower()
-
-        completions = []
-
-        if fuzzy:
-            regex = ".*?".join(map(escape, text))
-            pat = compile("(%s)" % regex)
-            for item in sorted(collection):
-                r = pat.search(item.lower())
-                if r:
-                    completions.append((len(r.group()), r.start(), item))
-        else:
-            match_end_limit = len(text) if start_only else None
-            for item in sorted(collection):
-                match_point = item.lower().find(text, 0, match_end_limit)
-                if match_point >= 0:
-                    completions.append((len(text), match_point, item))
-
-        if casing == "auto":
-            casing = "lower" if last and last[-1].islower() else "upper"
-
-        def apply_case(kw: str) -> str:
-            if casing == "upper":
-                return kw.upper()
-            return kw.lower()
-
-        return (Completion(z if casing is None else apply_case(z), -len(text)) for x, y, z in sorted(completions))
+        pass
 
     def get_completions(
         self,
@@ -562,60 +496,15 @@ class SQLCompleter(Completer):
         :return: iterable
 
         """
-        base_path, last_path, position = parse_path(word)
-        paths = suggest_path(word)
-        for name in sorted(paths):
-            suggestion = complete_path(name, last_path)
-            if suggestion:
-                yield Completion(suggestion, position)
+        pass
 
     def populate_scoped_cols(self, scoped_tbls: list[tuple[str | None, str, str | None]]) -> list[str]:
         """Find all columns in a set of scoped_tables
         :param scoped_tbls: list of (schema, table, alias) tuples
         :return: list of column names
         """
-        columns = []
-        meta = self.dbmetadata
-
-        for tbl in scoped_tbls:
-            # A fully qualified schema.relname reference or default_schema
-            # DO NOT escape schema names.
-            schema = tbl[0] or self.dbname
-            relname = tbl[1]
-            escaped_relname = self.escape_name(tbl[1])
-
-            # We don't know if schema.relname is a table or view. Since
-            # tables and views cannot share the same name, we can check one
-            # at a time
-            try:
-                columns.extend(meta["tables"][schema][relname])
-
-                # Table exists, so don't bother checking for a view
-                continue
-            except KeyError:
-                try:
-                    columns.extend(meta["tables"][schema][escaped_relname])
-                    # Table exists, so don't bother checking for a view
-                    continue
-                except KeyError:
-                    pass
-
-            try:
-                columns.extend(meta["views"][schema][relname])
-            except KeyError:
-                pass
-
-        return columns
+        pass
 
     def populate_schema_objects(self, schema: str | None, obj_type: str) -> list[str]:
         """Returns list of tables or functions for a (optional) schema"""
-        metadata = self.dbmetadata[obj_type]
-        schema = schema or self.dbname
-
-        try:
-            keys = list(metadata[schema].keys())
-        except KeyError:
-            # schema doesn't exist
-            keys = []
-
-        return keys
+        pass

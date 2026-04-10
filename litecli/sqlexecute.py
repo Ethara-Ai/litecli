@@ -180,23 +180,11 @@ class SQLExecute(object):
 
     def tables(self) -> Generator[tuple[str], None, None]:
         """Yields table names"""
-        if not self.conn:
-            return
-        with closing(self.conn.cursor()) as cur:
-            _logger.debug("Tables Query. sql: %r", self.tables_query)
-            cur.execute(self.tables_query)
-            for row in cur:
-                yield row
+        pass
 
     def table_columns(self) -> Generator[tuple[str, str], None, None]:
         """Yields column names"""
-        if not self.conn:
-            return
-        with closing(self.conn.cursor()) as cur:
-            _logger.debug("Columns Query. sql: %r", self.table_columns_query)
-            cur.execute(self.table_columns_query)
-            for row in cur:
-                yield row
+        pass
 
     def databases(self) -> Generator[str, None, None]:
         if not self.conn:
@@ -209,13 +197,7 @@ class SQLExecute(object):
 
     def functions(self) -> Iterable[tuple]:
         """Yields tuples of (schema_name, function_name)"""
-        if not self.conn:
-            return
-        with closing(self.conn.cursor()) as cur:
-            _logger.debug("Functions Query. sql: %r", self.functions_query)
-            cur.execute(self.functions_query % self.dbname)
-            for row in cur:
-                yield row
+        pass
 
     def server_type(self) -> tuple[str, str]:
         self._server_type = ("sqlite3", "3")

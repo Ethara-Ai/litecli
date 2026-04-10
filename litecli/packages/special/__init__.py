@@ -10,10 +10,6 @@ __all__: list[str] = []
 
 def export(defn: Callable[..., Any]) -> Callable[..., Any]:
     """Decorator to explicitly mark functions that are exposed in a lib."""
-    # ty, requires explict check for callable of tyep | function type to access __name__
-    if isinstance(defn, (type, FunctionType)):
-        globals()[defn.__name__] = defn
-        __all__.append(defn.__name__)
     return defn
 
 

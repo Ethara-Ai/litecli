@@ -157,20 +157,7 @@ def get_completions(tokens: list[str], tree: dict[str, Any] | None = COMMAND_TRE
     Returns:
         list[str]: List of possible completions.
     """
-    if not LLM_CLI_IMPORTED:
-        return []
-    for token in tokens:
-        if token.startswith("-"):
-            # Skip options (flags)
-            continue
-        if tree and token in tree:
-            tree = tree[token]
-        else:
-            # No completions available
-            return []
-
-    # Return possible completions (keys of the current tree level)
-    return list(tree.keys()) if tree else []
+    pass
 
 
 @export

@@ -52,19 +52,7 @@ def last_word(text: str, include: LAST_WORD_INCLUDE_TYPE = "alphanum_underscore"
     >>> last_word('bac::def', include='most_punctuations')
     'def'
     """
-
-    if not text:  # Empty string
-        return ""
-
-    if text[-1].isspace():
-        return ""
-    else:
-        regex = cleanup_regex[include]
-        matches = regex.search(text)
-        if matches:
-            return matches.group(0)
-        else:
-            return ""
+    pass
 
 
 # This code is borrowed from sqlparse example script.
@@ -176,32 +164,7 @@ def find_prev_keyword(sql: str) -> tuple[Token | None, str]:
     Returns the value of the last keyword, and the text of the query with
     everything after the last keyword stripped
     """
-    if not sql.strip():
-        return None, ""
-
-    parsed = sqlparse.parse(sql)[0]
-    flattened = list(parsed.flatten())
-
-    logical_operators = ("AND", "OR", "NOT", "BETWEEN")
-
-    for t in reversed(flattened):
-        if t.value == "(" or (t.is_keyword and (t.value.upper() not in logical_operators)):
-            # Find the location of token t in the original parsed statement
-            # We can't use parsed.token_index(t) because t may be a child token
-            # inside a TokenList, in which case token_index thows an error
-            # Minimal example:
-            #   p = sqlparse.parse('select * from foo where bar')
-            #   t = list(p.flatten())[-3]  # The "Where" token
-            #   p.token_index(t)  # Throws ValueError: not in list
-            idx = flattened.index(t)
-
-            # Combine the string values of all tokens in the original list
-            # up to and including the target keyword token t, to produce a
-            # query string with everything after the keyword token removed
-            text = "".join(tok.value for tok in flattened[: idx + 1])
-            return t, text
-
-    return None, ""
+    pass
 
 
 def query_starts_with(query: str, prefixes: Iterable[str]) -> bool:
